@@ -1,0 +1,161 @@
+package com.selenium.test;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+import java.io.File;
+import java.time.Duration;
+
+public class FormTest {
+
+    private WebDriver driver;
+    private int passCount = 0;
+    private int failCount = 0;
+
+    private static final String HTML_FILE_PATH = "D:\\DevOps_Lab\\CA2\\symbi_login\\web\\index.html";
+    private static final String URL = "file:///" + new File(HTML_FILE_PATH).getAbsolutePath().replace("\\", "/");
+
+    public static void main(String[] args) {
+        FormTest testSuite = new FormTest();
+        testSuite.runAllTests();
+    }
+
+    public void runAllTests() {
+        try {
+            setUp();
+            testPageTitle();
+            testEmptyName();
+            testEmptyEmail();
+            testShortPassword();
+            testPasswordMismatch();
+            testGenderRadio();
+            testCourseDropdown();
+            testValidSubmission();
+        } finally {
+            tearDown();
+            printResults();
+        }
+    }
+
+    private void setUp() {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
+    }
+
+    private void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    private void loadPage() {
+        driver.get(URL);
+    }
+
+    private void printResults() {
+        System.out.printf("%nFinal Report:%nPassed: %d | Failed: %d%n", passCount, failCount);
+    }
+
+    // Helper Methods
+    private String getAlertTextAndAccept() {
+        Alert alert = driver.switchTo().alert();
+        String text = alert.getText();
+        alert.accept();
+        return text;
+    }
+
+    private void fillInput(String id, String value) {
+        WebElement input = driver.findElement(By.id(id));
+        input.clear();
+        input.sendKeys(value);
+    }
+
+    private void assertTest(String name, boolean condition, String actual) {
+        if (condition) {
+            System.out.println(name + ": PASS ✔");
+            passCount++;
+        } else {
+            System.out.println(name + ": FAIL ✘ [Actual: " + actual + "]");
+            failCount++;
+        }
+    }
+
+    // Test Cases
+    private void testPageTitle() {
+        loadPage();
+        assertTest("TC01 Title", "Symbiosis Admission Form".equals(driver.getTitle()), driver.getTitle());
+    }
+
+    private void testEmptyName() {
+        loadPage();
+        fillInput("email", "test@test.com");
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC02 Empty Name", "Name cannot be empty".equals(msg), msg);
+    }
+
+    private void testEmptyEmail() {
+        loadPage();
+        fillInput("name", "Tanmay");
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC03 Empty Email", "Enter email".equals(msg), msg);
+    }
+
+    private void testShortPassword() {
+        loadPage();
+        fillInput("name", "Tanmay");
+        fillInput("email", "t@t.com");
+        fillInput("password", "123");
+        fillInput("confirm", "123");
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC04 Short Password", "Password must be at least 6 characters".equals(msg), msg);
+    }
+
+    private void testPasswordMismatch() {
+        loadPage();
+        fillInput("name", "Tanmay");
+        fillInput("email", "t@t.com");
+        fillInput("password", "pass123");
+        fillInput("confirm", "diff123");
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC05 Pwd Mismatch", "Passwords do not match".equals(msg), msg);
+    }
+
+    private void testGenderRadio() {
+        loadPage();
+        WebElement male = driver.findElement(By.id("male"));
+        WebElement female = driver.findElement(By.id("female"));
+        male.click();
+        boolean ok = male.isSelected() && !female.isSelected();
+        female.click();
+        ok = ok && female.isSelected() && !male.isSelected();
+        assertTest("TC06 Gender Radio", ok, "Radio selection error");
+    }
+
+    private void testCourseDropdown() {
+        loadPage();
+        Select course = new Select(driver.findElement(By.id("course")));
+        course.selectByVisibleText("BCA");
+        boolean ok = "BCA".equals(course.getFirstSelectedOption().getText());
+        assertTest("TC07 Dropdown", ok, "Dropdown selection error");
+    }
+
+    private void testValidSubmission() {
+        loadPage();
+        fillInput("name", "Tanmay Kalinkar");
+        fillInput("email", "tanmay@gmail.com");
+        fillInput("password", "password123");
+        fillInput("confirm", "password123");
+        driver.findElement(By.id("male")).click();
+        new Select(driver.findElement(By.id("course"))).selectByVisibleText("B.Tech");
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC08 Success", "Registration Successful".equals(msg), msg);
+    }
+}

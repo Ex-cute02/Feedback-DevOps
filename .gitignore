@@ -1,0 +1,11 @@
+# Maven build output
+selenium-tests/src/test/target/
+
+# Eclipse project metadata
+selenium-tests/src/test/.classpath
+selenium-tests/src/test/.project
+selenium-tests/src/test/.settings/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
