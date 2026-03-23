@@ -2,6 +2,7 @@ function validateForm(){
 
 let name = document.getElementById("name").value;
 let email = document.getElementById("email").value;
+let mobile = document.getElementById("mobile").value;
 let password = document.getElementById("password").value;
 let confirm = document.getElementById("confirm").value;
 
@@ -12,6 +13,11 @@ return false;
 
 if(email == ""){
 alert("Enter email");
+return false;
+}
+
+if(mobile != "" && !/^\d{10}$/.test(mobile)){
+alert("Invalid mobile number");
 return false;
 }
 

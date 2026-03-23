@@ -34,6 +34,8 @@ public class FormTest {
             testGenderRadio();
             testCourseDropdown();
             testValidSubmission();
+            testResetButton();
+            testInvalidMobile();
         } finally {
             tearDown();
             printResults();
@@ -73,6 +75,10 @@ public class FormTest {
         input.sendKeys(value);
     }
 
+    private void submitForm() {
+        driver.findElement(By.cssSelector("input[type='submit']")).click();
+    }
+
     private void assertTest(String name, boolean condition, String actual) {
         if (condition) {
             System.out.println(name + ": PASS ✔");
@@ -92,7 +98,7 @@ public class FormTest {
     private void testEmptyName() {
         loadPage();
         fillInput("email", "test@test.com");
-        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        submitForm();
         String msg = getAlertTextAndAccept();
         assertTest("TC02 Empty Name", "Name cannot be empty".equals(msg), msg);
     }
@@ -100,7 +106,7 @@ public class FormTest {
     private void testEmptyEmail() {
         loadPage();
         fillInput("name", "Tanmay");
-        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        submitForm();
         String msg = getAlertTextAndAccept();
         assertTest("TC03 Empty Email", "Enter email".equals(msg), msg);
     }
@@ -111,7 +117,7 @@ public class FormTest {
         fillInput("email", "t@t.com");
         fillInput("password", "123");
         fillInput("confirm", "123");
-        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        submitForm();
         String msg = getAlertTextAndAccept();
         assertTest("TC04 Short Password", "Password must be at least 6 characters".equals(msg), msg);
     }
@@ -122,7 +128,7 @@ public class FormTest {
         fillInput("email", "t@t.com");
         fillInput("password", "pass123");
         fillInput("confirm", "diff123");
-        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        submitForm();
         String msg = getAlertTextAndAccept();
         assertTest("TC05 Pwd Mismatch", "Passwords do not match".equals(msg), msg);
     }
@@ -154,8 +160,28 @@ public class FormTest {
         fillInput("confirm", "password123");
         driver.findElement(By.id("male")).click();
         new Select(driver.findElement(By.id("course"))).selectByVisibleText("B.Tech");
-        driver.findElement(By.cssSelector("input[type='submit']")).click();
+        submitForm();
         String msg = getAlertTextAndAccept();
         assertTest("TC08 Success", "Registration Successful".equals(msg), msg);
+    }
+
+    private void testResetButton() {
+        loadPage();
+        fillInput("name", "Temp Data");
+        driver.findElement(By.id("resetBtn")).click();
+        String nameValue = driver.findElement(By.id("name")).getAttribute("value");
+        assertTest("TC09 Reset Button", "".equals(nameValue), "Field not cleared");
+    }
+
+    private void testInvalidMobile() {
+        loadPage();
+        fillInput("name", "Tanmay");
+        fillInput("email", "t@t.com");
+        fillInput("mobile", "ABC123");
+        fillInput("password", "pass123");
+        fillInput("confirm", "pass123");
+        submitForm();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC10 Invalid Mobile", "Invalid mobile number".equals(msg), msg);
     }
 }
