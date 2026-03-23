@@ -8,6 +8,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.Select;
 import java.io.File;
 import java.time.Duration;
+import java.nio.file.Path;
 
 public class FormTest {
 
@@ -15,8 +16,7 @@ public class FormTest {
     private int passCount = 0;
     private int failCount = 0;
 
-    private static final String HTML_FILE_PATH = "D:\\DevOps_Lab\\CA2\\symbi_login\\web\\index.html";
-    private static final String URL = "file:///" + new File(HTML_FILE_PATH).getAbsolutePath().replace("\\", "/");
+    private static final String URL = "file:///" + resolveHtmlPath().replace("\\", "/");
 
     public static void main(String[] args) {
         FormTest testSuite = new FormTest();
@@ -61,6 +61,18 @@ public class FormTest {
 
     private void printResults() {
         System.out.printf("%nFinal Report:%nPassed: %d | Failed: %d%n", passCount, failCount);
+    }
+
+    private static String resolveHtmlPath() {
+        Path current = Path.of(System.getProperty("user.dir")).toAbsolutePath();
+        for (int i = 0; i < 8 && current != null; i++) {
+            Path candidate = current.resolve("web").resolve("index.html");
+            if (candidate.toFile().exists()) {
+                return candidate.toString();
+            }
+            current = current.getParent();
+        }
+        throw new IllegalStateException("Cannot find web/index.html from current directory");
     }
 
     // Helper Methods
