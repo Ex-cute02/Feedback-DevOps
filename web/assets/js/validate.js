@@ -5,6 +5,7 @@ let email = document.getElementById("email").value;
 let mobile = document.getElementById("mobile").value;
 let password = document.getElementById("password").value;
 let confirm = document.getElementById("confirm").value;
+let feedback = document.getElementById("feedback").value;
 
 if(name == ""){
 alert("Name cannot be empty");
@@ -28,6 +29,12 @@ return false;
 
 if(password != confirm){
 alert("Passwords do not match");
+return false;
+}
+
+let feedbackWordCount = feedback.trim().split(/\s+/).filter(Boolean).length;
+if(feedbackWordCount < 10){
+alert("Feedback must be at least 10 words");
 return false;
 }
 

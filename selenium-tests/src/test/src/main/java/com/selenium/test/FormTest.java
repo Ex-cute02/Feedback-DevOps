@@ -36,6 +36,8 @@ public class FormTest {
             testValidSubmission();
             testResetButton();
             testInvalidMobile();
+            testShortFeedback();
+            testValidFeedbackSubmission();
         } finally {
             tearDown();
             printResults();
@@ -156,8 +158,10 @@ public class FormTest {
         loadPage();
         fillInput("name", "Tanmay Kalinkar");
         fillInput("email", "tanmay@gmail.com");
+        fillInput("mobile", "9876543210");
         fillInput("password", "password123");
         fillInput("confirm", "password123");
+        fillInput("feedback", "This admission process is very smooth and the portal works really well.");
         driver.findElement(By.id("male")).click();
         new Select(driver.findElement(By.id("course"))).selectByVisibleText("B.Tech");
         submitForm();
@@ -180,8 +184,37 @@ public class FormTest {
         fillInput("mobile", "ABC123");
         fillInput("password", "pass123");
         fillInput("confirm", "pass123");
+        fillInput("feedback", "This feedback has enough words to pass the minimum length check.");
         submitForm();
         String msg = getAlertTextAndAccept();
         assertTest("TC10 Invalid Mobile", "Invalid mobile number".equals(msg), msg);
+    }
+
+    private void testShortFeedback() {
+        loadPage();
+        fillInput("name", "Tanmay");
+        fillInput("email", "t@t.com");
+        fillInput("mobile", "9876543210");
+        fillInput("password", "pass123");
+        fillInput("confirm", "pass123");
+        fillInput("feedback", "Too short feedback text only now");
+        submitForm();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC11 Short Feedback", "Feedback must be at least 10 words".equals(msg), msg);
+    }
+
+    private void testValidFeedbackSubmission() {
+        loadPage();
+        fillInput("name", "Tanmay");
+        fillInput("email", "t@t.com");
+        fillInput("mobile", "9876543210");
+        fillInput("password", "pass123");
+        fillInput("confirm", "pass123");
+        fillInput("feedback", "The complete form validation works well and gives very clear user messages.");
+        driver.findElement(By.id("female")).click();
+        new Select(driver.findElement(By.id("course"))).selectByVisibleText("BCA");
+        submitForm();
+        String msg = getAlertTextAndAccept();
+        assertTest("TC12 Valid Feedback", "Registration Successful".equals(msg), msg);
     }
 }
